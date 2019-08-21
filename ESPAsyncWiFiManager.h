@@ -113,7 +113,7 @@ public:
     AsyncWiFiManager(AsyncWebServer * server, DNSServer *dns);
 #endif
 
-    void          scan();
+    bool          scan();
     String        scanModal();
     void          loop();
     void          safeLoop();

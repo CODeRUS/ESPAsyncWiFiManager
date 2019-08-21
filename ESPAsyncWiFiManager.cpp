@@ -296,9 +296,9 @@ String AsyncWiFiManager::scanModal()
     return pager;
 }
 
-void AsyncWiFiManager::scan()
+bool AsyncWiFiManager::scan()
 {
-    if (!shouldscan) return;
+    if (!shouldscan) return true;
     DEBUG_WM(F("About to scan()"));
     if (wifiSSIDscan)
     {
@@ -311,8 +311,10 @@ void AsyncWiFiManager::scan()
         DEBUG_WM(F("Scan done"));
         if(n == WIFI_SCAN_FAILED) {
             DEBUG_WM(F("scanNetworks returned: WIFI_SCAN_FAILED!"));
+            return false;
         } else if(n == WIFI_SCAN_RUNNING) {
             DEBUG_WM(F("scanNetworks returned: WIFI_SCAN_RUNNING!"));
+            return false;
         } else if(n < 0) {
             DEBUG_WM(F("scanNetworks failed with unknown error code!"));
         } else if (n == 0) {
@@ -373,6 +375,8 @@ void AsyncWiFiManager::scan()
             }
         }
     }
+
+    return true;
 }
 
 
@@ -521,9 +525,12 @@ boolean  AsyncWiFiManager::startConfigPortal(char const *apName, char const *apP
             DEBUG_WM(F("About to scan()"));
             shouldscan=true;  // since we are modal, we can scan every time
             WiFi.disconnect(); // we might still be connecting, so that has to stop for scanning
-            scan();
+            if (scan()) {
+                scannow = millis();
+            } else {
+                scannow = millis() + 10000;
+            }
             if(_tryConnectDuringConfigPortal) WiFi.begin(); // try to reconnect to AP
-            scannow= millis() ;
         }
 
         // attempts to reconnect were successful
