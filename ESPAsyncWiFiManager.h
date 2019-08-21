@@ -41,7 +41,7 @@ typedef int16_t wifi_ssid_count_t;
 
 #if defined(ESP8266)
 extern "C" {
-  #include "user_interface.h"
+#include "user_interface.h"
 }
 #else
 #include <rom/rtc.h>
@@ -64,42 +64,42 @@ const char HTTP_END[] PROGMEM             = "</div></body></html>";
 
 class AsyncWiFiManagerParameter {
 public:
-  AsyncWiFiManagerParameter(const char *custom);
-  AsyncWiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length);
-  AsyncWiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom);
+    AsyncWiFiManagerParameter(const char *custom);
+    AsyncWiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length);
+    AsyncWiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom);
 
-  const char *getID();
-  const char *getValue();
-  const char *getPlaceholder();
-  int         getValueLength();
-  const char *getCustomHTML();
+    const char *getID();
+    const char *getValue();
+    const char *getPlaceholder();
+    int         getValueLength();
+    const char *getCustomHTML();
 private:
-  const char *_id;
-  const char *_placeholder;
-  char       *_value;
-  int         _length;
-  const char *_customHTML;
+    const char *_id;
+    const char *_placeholder;
+    char       *_value;
+    int         _length;
+    const char *_customHTML;
 
-  void init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom);
+    void init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom);
 
-  friend class AsyncWiFiManager;
+    friend class AsyncWiFiManager;
 };
 
 
 class WiFiResult
 {
 public:
-  bool duplicate;
-  String SSID;
-  uint8_t encryptionType;
-  int32_t RSSI;
-  uint8_t* BSSID;
-  int32_t channel;
-  bool isHidden;
+    bool duplicate;
+    String SSID;
+    uint8_t encryptionType;
+    int32_t RSSI;
+    uint8_t* BSSID;
+    int32_t channel;
+    bool isHidden;
 
-  WiFiResult()
-  {
-  }
+    WiFiResult()
+    {
+    }
 
 
 };
@@ -107,173 +107,174 @@ public:
 class AsyncWiFiManager
 {
 public:
-  #ifdef USE_EADNS
-  AsyncWiFiManager(AsyncWebServer * server, AsyncDNSServer *dns);
-  #else
-  AsyncWiFiManager(AsyncWebServer * server, DNSServer *dns);
-  #endif
+#ifdef USE_EADNS
+    AsyncWiFiManager(AsyncWebServer * server, AsyncDNSServer *dns);
+#else
+    AsyncWiFiManager(AsyncWebServer * server, DNSServer *dns);
+#endif
 
-  void          scan();
-  String        scanModal();
-  void          loop();
-  void          safeLoop();
-  void          criticalLoop();
-  String        infoAsString();
+    void          scan();
+    String        scanModal();
+    void          loop();
+    void          safeLoop();
+    void          criticalLoop();
+    String        infoAsString();
 
-  boolean       autoConnect(unsigned long maxConnectRetries = 1, unsigned long retryDelayMs = 1000);
-  boolean       autoConnect(char const *apName, char const *apPassword = NULL, unsigned long maxConnectRetries = 1, unsigned long retryDelayMs = 1000);
-
-  //if you want to always start the config portal, without trying to connect first
-  boolean       startConfigPortal(char const *apName, char const *apPassword = NULL);
-  void startConfigPortalModeless(char const *apName, char const *apPassword);
-
-  // get the AP name of the config portal, so it can be used in the callback
-  String        getConfigPortalSSID();
-
-  void          resetSettings();
-
-  //sets timeout before webserver loop ends and exits even if there has been no setup.
-  //usefully for devices that failed to connect at some point and got stuck in a webserver loop
-  //in seconds setConfigPortalTimeout is a new name for setTimeout
-  void          setConfigPortalTimeout(unsigned long seconds);
-  void          setTimeout(unsigned long seconds);
-
-  //sets timeout for which to attempt connecting, usefull if you get a lot of failed connects
-  void          setConnectTimeout(unsigned long seconds);
-
-  //wether or not the wifi manager tries to connect to configured access point even when
-  //configuration portal (ESP as access point) is running [default true/on]
-  void          setTryConnectDuringConfigPortal(boolean v);
+    boolean       autoConnect(unsigned long maxConnectRetries = 1, unsigned long retryDelayMs = 1000);
+    boolean       autoConnect(char const *apName, char const *apPassword = NULL, unsigned long maxConnectRetries = 1, unsigned long retryDelayMs = 1000);
 
 
-  void          setDebugOutput(boolean debug);
-  //defaults to not showing anything under 8% signal quality if called
-  void          setMinimumSignalQuality(int quality = 8);
-  //sets a custom ip /gateway /subnet configuration
-  void          setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn);
-  //sets config for a static IP
-  void          setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn, IPAddress dns1=(uint32_t)0x00000000, IPAddress dns2=(uint32_t)0x00000000);
-  //called when AP mode and config portal is started
-  void          setAPCallback( void (*func)(AsyncWiFiManager*) );
-  //called when settings have been changed and connection was successful
-  void          setSaveConfigCallback( void (*func)(void) );
-  //adds a custom parameter
-  void          addParameter(AsyncWiFiManagerParameter *p);
-  //if this is set, it will exit after config, even if connection is unsucessful.
-  void          setBreakAfterConfig(boolean shouldBreak);
-  //if this is set, try WPS setup when starting (this will delay config portal for up to 2 mins)
-  //TODO
-  //if this is set, customise style
-  void          setCustomHeadElement(const char* element);
-  //if this is true, remove duplicated Access Points - defaut true
-  void          setRemoveDuplicateAPs(boolean removeDuplicates);
-  //sets a custom element to add to options page
-  void          setCustomOptionsElement(const char* element);
+    //if you want to always start the config portal, without trying to connect first
+    boolean       startConfigPortal(char const *apName, char const *apPassword = NULL);
+    void startConfigPortalModeless(char const *apName, char const *apPassword);
+
+    // get the AP name of the config portal, so it can be used in the callback
+    String        getConfigPortalSSID();
+
+    void          resetSettings();
+
+    //sets timeout before webserver loop ends and exits even if there has been no setup.
+    //usefully for devices that failed to connect at some point and got stuck in a webserver loop
+    //in seconds setConfigPortalTimeout is a new name for setTimeout
+    void          setConfigPortalTimeout(unsigned long seconds);
+    void          setTimeout(unsigned long seconds);
+
+    //sets timeout for which to attempt connecting, usefull if you get a lot of failed connects
+    void          setConnectTimeout(unsigned long seconds);
+
+    //wether or not the wifi manager tries to connect to configured access point even when
+    //configuration portal (ESP as access point) is running [default true/on]
+    void          setTryConnectDuringConfigPortal(boolean v);
+
+
+    void          setDebugOutput(boolean debug);
+    //defaults to not showing anything under 8% signal quality if called
+    void          setMinimumSignalQuality(int quality = 8);
+    //sets a custom ip /gateway /subnet configuration
+    void          setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn);
+    //sets config for a static IP
+    void          setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn, IPAddress dns1=(uint32_t)0x00000000, IPAddress dns2=(uint32_t)0x00000000);
+    //called when AP mode and config portal is started
+    void          setAPCallback( void (*func)(AsyncWiFiManager*) );
+    //called when settings have been changed and connection was successful
+    void          setSaveConfigCallback( void (*func)(void) );
+    //adds a custom parameter
+    void          addParameter(AsyncWiFiManagerParameter *p);
+    //if this is set, it will exit after config, even if connection is unsucessful.
+    void          setBreakAfterConfig(boolean shouldBreak);
+    //if this is set, try WPS setup when starting (this will delay config portal for up to 2 mins)
+    //TODO
+    //if this is set, customise style
+    void          setCustomHeadElement(const char* element);
+    //if this is true, remove duplicated Access Points - defaut true
+    void          setRemoveDuplicateAPs(boolean removeDuplicates);
+    //sets a custom element to add to options page
+    void          setCustomOptionsElement(const char* element);
 
 private:
-  AsyncWebServer *server;
-  #ifdef USE_EADNS
-  AsyncDNSServer      *dnsServer;
-  #else
-  DNSServer      *dnsServer;
-  #endif
-
-
-  boolean         _modeless;
-  int             scannow;
-  int             shouldscan;
-  boolean         needInfo = true;
-
-  //const int     WM_DONE                 = 0;
-  //const int     WM_WAIT                 = 10;
-
-  //const String  HTTP_HEAD = "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><title>{v}</title>";
-
-  void          setupConfigPortal();
-#ifdef NO_EXTRA_4K_HEAP
-  void          startWPS();
+    AsyncWebServer *server;
+#ifdef USE_EADNS
+    AsyncDNSServer      *dnsServer;
+#else
+    DNSServer      *dnsServer;
 #endif
-  String        pager;
-  wl_status_t   wifiStatus;
-  const char*   _apName                 = "no-net";
-  const char*   _apPassword             = NULL;
-  String        _ssid                   = "";
-  String        _pass                   = "";
-  unsigned long _configPortalTimeout    = 0;
-  unsigned long _connectTimeout         = 0;
-  unsigned long _configPortalStart      = 0;
 
-  IPAddress     _ap_static_ip;
-  IPAddress     _ap_static_gw;
-  IPAddress     _ap_static_sn;
-  IPAddress     _sta_static_ip;
-  IPAddress     _sta_static_gw;
-  IPAddress     _sta_static_sn;
-  IPAddress     _sta_static_dns1= (uint32_t)0x00000000;
-  IPAddress     _sta_static_dns2= (uint32_t)0x00000000;
 
-  int           _paramsCount            = 0;
-  int           _minimumQuality         = -1;
-  boolean       _removeDuplicateAPs     = true;
-  boolean       _shouldBreakAfterConfig = false;
+    boolean         _modeless;
+    int             scannow;
+    int             shouldscan;
+    boolean         needInfo = true;
+
+    //const int     WM_DONE                 = 0;
+    //const int     WM_WAIT                 = 10;
+
+    //const String  HTTP_HEAD = "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><title>{v}</title>";
+
+    void          setupConfigPortal();
 #ifdef NO_EXTRA_4K_HEAP
-  boolean       _tryWPS                 = false;
+    void          startWPS();
 #endif
-  const char*   _customHeadElement      = "";
-  const char*   _customOptionsElement   = "";
+    String        pager;
+    wl_status_t   wifiStatus;
+    const char*   _apName                 = "no-net";
+    const char*   _apPassword             = NULL;
+    String        _ssid                   = "";
+    String        _pass                   = "";
+    unsigned long _configPortalTimeout    = 0;
+    unsigned long _connectTimeout         = 0;
+    unsigned long _configPortalStart      = 0;
 
-  //String        getEEPROMString(int start, int len);
-  //void          setEEPROMString(int start, int len, String string);
+    IPAddress     _ap_static_ip;
+    IPAddress     _ap_static_gw;
+    IPAddress     _ap_static_sn;
+    IPAddress     _sta_static_ip;
+    IPAddress     _sta_static_gw;
+    IPAddress     _sta_static_sn;
+    IPAddress     _sta_static_dns1= (uint32_t)0x00000000;
+    IPAddress     _sta_static_dns2= (uint32_t)0x00000000;
 
-  int           status = WL_IDLE_STATUS;
-  int           connectWifi(String ssid, String pass);
-  uint8_t       waitForConnectResult();
-  void          setInfo();
+    int           _paramsCount            = 0;
+    int           _minimumQuality         = -1;
+    boolean       _removeDuplicateAPs     = true;
+    boolean       _shouldBreakAfterConfig = false;
+#ifdef NO_EXTRA_4K_HEAP
+    boolean       _tryWPS                 = false;
+#endif
+    const char*   _customHeadElement      = "";
+    const char*   _customOptionsElement   = "";
 
-  String networkListAsString();
+    //String        getEEPROMString(int start, int len);
+    //void          setEEPROMString(int start, int len, String string);
 
-  void          handleRoot(AsyncWebServerRequest *);
-  void          handleWifi(AsyncWebServerRequest*,boolean scan);
-  void          handleWifiSave(AsyncWebServerRequest*);
-  void          handleInfo(AsyncWebServerRequest*);
-  void          handleReset(AsyncWebServerRequest*);
-  void          handleNotFound(AsyncWebServerRequest*);
-  void          handle204(AsyncWebServerRequest*);
-  boolean       captivePortal(AsyncWebServerRequest*);
+    int           status = WL_IDLE_STATUS;
+    int           connectWifi(String ssid, String pass);
+    uint8_t       waitForConnectResult();
+    void          setInfo();
 
-  // DNS server
-  const byte    DNS_PORT = 53;
+    String networkListAsString();
 
-  //helpers
-  int           getRSSIasQuality(int RSSI);
-  boolean       isIp(String str);
-  String        toStringIp(IPAddress ip);
+    void          handleRoot(AsyncWebServerRequest *);
+    void          handleWifi(AsyncWebServerRequest*,boolean scan);
+    void          handleWifiSave(AsyncWebServerRequest*);
+    void          handleInfo(AsyncWebServerRequest*);
+    void          handleReset(AsyncWebServerRequest*);
+    void          handleNotFound(AsyncWebServerRequest*);
+    void          handle204(AsyncWebServerRequest*);
+    boolean       captivePortal(AsyncWebServerRequest*);
 
-  boolean       connect;
-  boolean       _debug = true;
+    // DNS server
+    const byte    DNS_PORT = 53;
 
-  WiFiResult          *wifiSSIDs;
-  wifi_ssid_count_t   wifiSSIDCount;
-  boolean             wifiSSIDscan;
+    //helpers
+    int           getRSSIasQuality(int RSSI);
+    boolean       isIp(String str);
+    String        toStringIp(IPAddress ip);
 
-  boolean             _tryConnectDuringConfigPortal = true;
+    boolean       connect;
+    boolean       _debug = true;
 
-  void (*_apcallback)(AsyncWiFiManager*) = NULL;
-  void (*_savecallback)(void) = NULL;
+    WiFiResult          *wifiSSIDs;
+    wifi_ssid_count_t   wifiSSIDCount;
+    boolean             wifiSSIDscan;
 
-  AsyncWiFiManagerParameter* _params[WIFI_MANAGER_MAX_PARAMS];
+    boolean             _tryConnectDuringConfigPortal = true;
 
-  template <typename Generic>
-  void          DEBUG_WM(Generic text);
+    void (*_apcallback)(AsyncWiFiManager*) = NULL;
+    void (*_savecallback)(void) = NULL;
 
-  template <class T>
-  auto optionalIPFromString(T *obj, const char *s) -> decltype(  obj->fromString(s)  ) {
-    return  obj->fromString(s);
-  }
-  auto optionalIPFromString(...) -> bool {
-    DEBUG_WM("NO fromString METHOD ON IPAddress, you need ESP8266 core 2.1.0 or newer for Custom IP configuration to work.");
-    return false;
-  }
+    AsyncWiFiManagerParameter* _params[WIFI_MANAGER_MAX_PARAMS];
+
+    template <typename Generic>
+    void          DEBUG_WM(Generic text);
+
+    template <class T>
+    auto optionalIPFromString(T *obj, const char *s) -> decltype(  obj->fromString(s)  ) {
+        return  obj->fromString(s);
+    }
+    auto optionalIPFromString(...) -> bool {
+        DEBUG_WM("NO fromString METHOD ON IPAddress, you need ESP8266 core 2.1.0 or newer for Custom IP configuration to work.");
+        return false;
+    }
 };
 
 #endif
