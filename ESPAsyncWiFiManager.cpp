@@ -823,6 +823,10 @@ void AsyncWiFiManager::handleWifi(AsyncWebServerRequest *request,boolean scan)
     shouldscan=true;
     scannow= -1 ;
 
+    if (_modeless && scan) {
+        criticalLoop();
+    }
+
     DEBUG_WM(F("Handle wifi"));
 
     String page = FPSTR(WFM_HTTP_HEAD);
