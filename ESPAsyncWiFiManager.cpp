@@ -137,7 +137,7 @@ void AsyncWiFiManager::setupConfigPortal()
     setInfo();
 
     /* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
-    server->on("/", std::bind(&AsyncWiFiManager::handleRoot, this,std::placeholders::_1)).setFilter(ON_AP_FILTER);
+    server->on("/captive", std::bind(&AsyncWiFiManager::handleRoot, this,std::placeholders::_1)).setFilter(ON_AP_FILTER);
     server->on("/wifi", std::bind(&AsyncWiFiManager::handleWifi, this, std::placeholders::_1,true)).setFilter(ON_AP_FILTER);
     server->on("/0wifi", std::bind(&AsyncWiFiManager::handleWifi, this,std::placeholders::_1, false)).setFilter(ON_AP_FILTER);
     server->on("/wifisave", std::bind(&AsyncWiFiManager::handleWifiSave,this,std::placeholders::_1)).setFilter(ON_AP_FILTER);
@@ -378,33 +378,13 @@ void AsyncWiFiManager::scan()
 
 void AsyncWiFiManager::startConfigPortalModeless(char const *apName, char const *apPassword)
 {
-
-    _modeless =true;
-    _apName = apName;
-    _apPassword = apPassword;
-
-    /*
-  AJS - do we want this?
-
-  */
-
     //setup AP
     WiFi.mode(WIFI_AP_STA);
     DEBUG_WM("SET AP STA");
 
-    // try to connect
-    if (connectWifi("", "") == WL_CONNECTED)   {
-        DEBUG_WM(F("IP Address:"));
-        DEBUG_WM(WiFi.localIP());
-        //connected
-        // call the callback!
-        if ( _savecallback != NULL) {
-            //todo: check if any custom parameters actually exist, and check if they really changed maybe
-            _savecallback();
-        }
-    }
-
-
+    _modeless =true;
+    _apName = apName;
+    _apPassword = apPassword;
 
     //notify we entered AP mode
     if ( _apcallback != NULL) {
@@ -414,7 +394,6 @@ void AsyncWiFiManager::startConfigPortalModeless(char const *apName, char const 
     connect = false;
     setupConfigPortal();
     scannow= -1 ;
-
 }
 
 void AsyncWiFiManager::loop()
@@ -437,45 +416,67 @@ void AsyncWiFiManager::setInfo()
  */
 void AsyncWiFiManager::criticalLoop()
 {
-    if (_modeless)
+    if (!_modeless) {
+        return;
+    }
+
+    //
+    //  we should do a scan every so often here and
+    //  try to reconnect to AP while we are at it
+    //
+    if ( scannow == -1 || millis() > scannow + 10000)
     {
+        DEBUG_WM(F("About to scan()"));
+        shouldscan=true;  // since we are modal, we can scan every time
+        WiFi.disconnect(); // we might still be connecting, so that has to stop for scanning
+        scan();
+        if(_tryConnectDuringConfigPortal) WiFi.begin(); // try to reconnect to AP
+        scannow= millis() ;
+    }
 
-        if ( scannow==-1 || millis() > scannow + 60000)
-        {
-            scan();
-            scannow= millis() ;
+    // attempts to reconnect were successful
+    if(WiFi.status() == WL_CONNECTED) {
+        //connected
+        WiFi.mode(WIFI_STA);
+        //notify that configuration has changed and any optional parameters should be saved
+        if ( _savecallback != NULL) {
+            //todo: check if any custom parameters actually exist, and check if they really changed maybe
+            _savecallback();
         }
-        if (connect) {
-            connect = false;
-            //delay(2000);
-            DEBUG_WM(F("Connecting to new AP"));
+        return;
+    }
 
-            // using user-provided  _ssid, _pass in place of system-stored ssid and pass
-            if (connectWifi(_ssid, _pass) != WL_CONNECTED) {
-                DEBUG_WM(F("Failed to connect."));
-            } else {
-                //connected
-                // alanswx - should we have a config to decide if we should shut down AP?
-                // WiFi.mode(WIFI_STA);
-                //notify that configuration has changed and any optional parameters should be saved
-                if ( _savecallback != NULL) {
-                    //todo: check if any custom parameters actually exist, and check if they really changed maybe
-                    _savecallback();
-                }
 
-                return;
+    if (connect) {
+        connect = false;
+        delay(2000);
+        DEBUG_WM(F("Connecting to new AP"));
+
+        // using user-provided  _ssid, _pass in place of system-stored ssid and pass
+        if (connectWifi(_ssid, _pass) == WL_CONNECTED) {
+            //connected
+            WiFi.mode(WIFI_STA);
+            //notify that configuration has changed and any optional parameters should be saved
+            if ( _savecallback != NULL) {
+                //todo: check if any custom parameters actually exist, and check if they really changed maybe
+                _savecallback();
             }
+            return;
+        } else {
+            DEBUG_WM(F("Failed to connect."));
+        }
 
-            if (_shouldBreakAfterConfig) {
-                //flag set to exit after config after trying to connect
-                //notify that configuration has changed and any optional parameters should be saved
-                if ( _savecallback != NULL) {
-                    //todo: check if any custom parameters actually exist, and check if they really changed maybe
-                    _savecallback();
-                }
+        if (_shouldBreakAfterConfig) {
+            //flag set to exit after config after trying to connect
+            //notify that configuration has changed and any optional parameters should be saved
+            if ( _savecallback != NULL) {
+                //todo: check if any custom parameters actually exist, and check if they really changed maybe
+                _savecallback();
             }
+            return;
         }
     }
+    yield();
 }
 
 /*
