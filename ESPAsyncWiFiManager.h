@@ -122,6 +122,7 @@ public:
 
     boolean       autoConnect(unsigned long maxConnectRetries = 1, unsigned long retryDelayMs = 1000);
     boolean       autoConnect(char const *apName, char const *apPassword = NULL, unsigned long maxConnectRetries = 1, unsigned long retryDelayMs = 1000);
+    boolean       tryToConnect(unsigned long maxConnectRetries = 1, unsigned long retryDelayMs = 1000);
 
 
     //if you want to always start the config portal, without trying to connect first

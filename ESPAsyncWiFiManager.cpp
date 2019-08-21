@@ -203,6 +203,18 @@ boolean AsyncWiFiManager::autoConnect(char const *apName, char const *apPassword
 {
     DEBUG_WM(F(""));
 
+    if (tryToConnect(maxConnectRetries, retryDelayMs)) {
+        return true;
+    }
+
+
+    return startConfigPortal(apName, apPassword);
+}
+
+boolean AsyncWiFiManager::tryToConnect(unsigned long maxConnectRetries, unsigned long retryDelayMs)
+{
+    DEBUG_WM(F(""));
+
     // read eeprom for ssid and pass
     //String ssid = getSSID();
     //String pass = getPassword();
@@ -239,8 +251,7 @@ boolean AsyncWiFiManager::autoConnect(char const *apName, char const *apPassword
         }
     }
 
-
-    return startConfigPortal(apName, apPassword);
+    return false;
 }
 
 
