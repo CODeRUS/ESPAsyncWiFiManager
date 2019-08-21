@@ -33,7 +33,7 @@ AsyncWiFiManagerParameter::AsyncWiFiManagerParameter(const char *id, const char 
     init(id, placeholder, defaultValue, length, custom);
 }
 
-void AsyncWiFiManagerParameter::init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom
+void AsyncWiFiManagerParameter::init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom)
 {
     _id = id;
     _placeholder = placeholder;
