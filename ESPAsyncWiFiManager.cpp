@@ -229,7 +229,7 @@ boolean AsyncWiFiManager::tryToConnect(unsigned long maxConnectRetries, unsigned
         DEBUG_WM(F("AutoConnect Try No.:"));
         DEBUG_WM(tryNumber);
 
-        if (connectWifi("", "") == WL_CONNECTED)   {
+        if (connectWifi(_ssid, _pass) == WL_CONNECTED)   {
             DEBUG_WM(F("IP Address:"));
             DEBUG_WM(WiFi.localIP());
             //connected
